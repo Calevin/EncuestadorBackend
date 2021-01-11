@@ -10,3 +10,6 @@ typings/
 
 # Node.js dependency directory
 node_modules/
+
+/src/serviceAccountKey.json
+/lib/serviceAccountKey.json
