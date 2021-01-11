@@ -1,5 +1,7 @@
 import * as functions from 'firebase-functions';
-import * as admin  from 'firebase-admin';
+import * as admin from 'firebase-admin';
+import * as express from 'express';
+import * as cors from 'cors';
 
 const serviceAccount = require('./serviceAccountKey.json');
 
@@ -20,7 +22,7 @@ export const helloWorld = functions.https.onRequest((request, response) => {
     });
 });
 
-export const encuesta = functions.https.onRequest( async (request, response) => {
+export const encuestaFunctions = functions.https.onRequest( async (request, response) => {
   functions.logger.info("getEncuesta", {structuredData: true});
 
   const encuestaRef = db.collection('encuesta');
@@ -29,3 +31,18 @@ export const encuesta = functions.https.onRequest( async (request, response) => 
 
   response.json( resultadoEncuesta );
 });
+
+// Express
+const app = express();
+app.use( cors({ origin: true }) );
+
+// Servicio get /encuesta hecho con express
+app.get('/encuesta', async (req, res)  => {
+  const encuestaRef = db.collection('encuesta');
+  const docsSnap = await encuestaRef.get();
+  const resultadoEncuesta = docsSnap.docs.map( doc => doc.data() );
+
+  res.json( resultadoEncuesta );
+});
+
+export const api = functions.https.onRequest( app );
